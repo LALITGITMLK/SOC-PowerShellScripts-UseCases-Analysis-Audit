@@ -1,0 +1,123 @@
+## SOP for Running PowerShell Security Use Case Scripts by Device Type
+
+This SOP categorizes the 70 PowerShell security use case scripts based on common device types to help analysts easily identify which scripts to run on which assets.
+
+***
+
+### Windows Workstations
+
+Recommended for all general user endpoints.
+
+- UC-001 Rapid Host Profiling  
+- UC-002 User Session Timeline Builder  
+- UC-007 Registry Persistence Hunter  
+- UC-008 Network Traffic Extractor  
+- UC-009 Browser Forensics Collector  
+- UC-011 IP Reputation Batch Checker  
+- UC-019 PowerShell History Extractor  
+- UC-025 User Logon Sessions Tracker  
+- UC-026 Environment Variables Enumerator  
+- UC-030 Installed Patches Summary  
+- UC-031 Antivirus Status Sweeper  
+- UC-034 Local Admin Account Finder  
+- UC-035 Firewall Rule Auditor  
+- UC-056 Process Anomaly Tracker  
+- UC-057 DLL Hijack Opportunity Finder  
+- UC-060 Quarantine Status Checker  
+- UC-063 Remediation Verification Scanner  
+
+***
+
+### Windows Servers (including Domain Controllers)
+
+Critical infrastructure servers needing advanced auditing.
+
+- UC-003 File Hash Rapid Verification  
+- UC-005 Lateral Movement Path Finder  
+- UC-010 Email Header Deep Analyzer  
+- UC-013 Certificate Transparency Log Scanner  
+- UC-014 User Privilege Snapshot Comparer  
+- UC-016 Scheduled Task Auditor  
+- UC-021 Process Tree Snapshot  
+- UC-024 Installed Software Inventory  
+- UC-027 Scheduled Services Status Checker  
+- UC-028 Active Firewall Rules Exporter  
+- UC-029 Network Shares Enumerator  
+- UC-041 O365 Sign-in Location Validator  
+- UC-045 SaaS OAuth Token Reviewer  
+- UC-066 New User Creation Auditor  
+- UC-067 Group Policy Change Tracker  
+- UC-064 Failed Login Aggregator  
+- UC-065 After-Hours Access Reporter  
+
+***
+
+### Firewalls and Network Devices
+
+Scripts focused on network traffic, connections, anomaly detection.
+
+- UC-004 Port Scanner Detection  
+- UC-006 Memory Dump Quick Capture (where applicable)  
+- UC-012 Suspicious File Scanner (for file servers)  
+- UC-017 Rare Process Detector (where applicable)  
+- UC-018 Open Ports and Listening Services  
+- UC-022 Scheduled Task Creation Monitor  
+- UC-036 DNS Query Anomaly Finder  
+- UC-038 VPN Connection Geo-Analyzer  
+- UC-039 Rogue DHCP Server Detector  
+- UC-068 Large File Transfer Detector  
+
+***
+
+### Cloud Environments (Azure, AWS, SaaS)
+
+Cloud-specific scripts requiring API or CLI access.
+
+- UC-042 AWS IAM Permission Analyzer  
+- UC-043 S3 Bucket Public Access Checker  
+- UC-044 Azure Resource Creation Auditor  
+- UC-045 SaaS OAuth Token Reviewer  
+- UC-041 O365 Sign-in Location Validator  
+
+***
+
+### Malware Analysis and Forensics Workstations
+
+For deep malware reverse engineering and triage.
+
+- UC-046 Suspicious String Extractor  
+- UC-047 PE File Metadata Parser  
+- UC-048 JavaScript Deobfuscator  
+- UC-049 Macro Extractor Analyzer  
+- UC-050 Shellcode Identifier  
+- UC-062 Clean Room Evidence Packager  
+- UC-055 Lessons Learned Documenter  
+
+***
+
+### Incident Response and Audit Preparation
+
+Scripts that support evidence gathering, reporting, and validation.
+
+- UC-020 Windows Defender Scan Report Extractor  
+- UC-023 File System Change Monitor  
+- UC-031 Antivirus Status Sweeper  
+- UC-052 IOC Report Compiler  
+- UC-053 Executive Summary Generator  
+- UC-054 Compliance Evidence Collector  
+- UC-058 Shadow Copy Analyzer  
+- UC-059 Mass Password Reset Validator  
+- UC-061 Backup Integrity Validator  
+
+***
+
+### Summary Notes
+
+- Always run scripts with **Administrator** permissions where indicated.
+- Some scripts require environment-specific tools (e.g., AWS CLI, Azure PowerShell, 7-Zip).
+- Cloud scripts require proper API or CLI authentication.
+- Analyze results manually where scripts highlight suspicious items.
+- Scripts can be scheduled or run live during investigations.
+- Review documentation comments in each script for usage notes and prerequisites.
+
+This categorization should aid analysts in selecting the right scripts quickly for their targeted device types during investigations.

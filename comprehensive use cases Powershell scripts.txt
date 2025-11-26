@@ -1,0 +1,454 @@
+comprehensive use cases specifically for **manual security analysis tasks** that analysts/leads perform outside of SIEM/SOAR automation.
+
+## **SOC Analyst Manual Investigation Scripts - Use Case Catalog**
+
+---
+
+### **CATEGORY 1: Alert Triage & Initial Assessment (First 15 minutes of incident)**
+
+#### **UC-001: Rapid Host Profiling**
+- **What**: Collects system info, running processes, network connections, scheduled tasks in one snapshot
+- **When**: Immediately after receiving endpoint alert
+- **Where**: Run directly on suspicious endpoint via RDP/remote PowerShell
+- **Situation**: Malware alert, suspicious process, or user behavior anomaly
+- **Why Manual**: SIEM shows "Process X started" but analyst needs FULL context: What else is running? Network connections? User sessions?
+
+#### **UC-002: User Session Timeline Builder**
+- **What**: Extracts all logon/logoff events for specific user across last 24-72 hours
+- **When**: During compromised account investigation
+- **Where**: Run on Domain Controller or target workstation
+- **Situation**: Impossible travel alert, after-hours access, privilege escalation
+- **Why Manual**: SIEM shows "User logged in" but analyst needs: From where? What time exactly? Session duration? Logon type?
+
+#### **UC-003: File Hash Rapid Verification**
+- **What**: Calculates MD5/SHA256 of suspicious file and checks against VirusTotal/local threat intel
+- **When**: Malicious file detected or unknown executable found
+- **Where**: On analyst workstation or isolated sandbox
+- **Situation**: Email attachment analysis, USB drive investigation, downloaded file verification
+- **Why Manual**: Analyst has physical file that needs immediate verification before submitting to sandbox
+
+#### **UC-004: Port Scanner Detection**
+- **What**: Analyzes firewall/netflow logs to identify port scanning patterns
+- **When**: Multiple connection attempts logged
+- **Where**: On log collection server or SIEM export
+- **Situation**: IDS shows multiple blocked connections, potential recon activity
+- **Why Manual**: SIEM shows individual blocks but analyst needs: Which ports? In what order? Time delta between scans?
+
+#### **UC-005: Lateral Movement Path Finder**
+- **What**: Maps network connections between hosts to identify pivot points
+- **When**: After confirming initial compromise
+- **Where**: On multiple endpoints or central log repository
+- **Situation**: Ransomware early detection, APT investigation
+- **Why Manual**: SIEM shows "Host A connected to Host B" but analyst needs: Full connection chain? Service used? Credential pattern?
+
+---
+
+### **CATEGORY 2: Evidence Collection & Preservation (Investigation Phase)**
+
+#### **UC-006: Memory Dump Quick Capture**
+- **What**: Creates forensic memory snapshot with metadata
+- **When**: Volatile evidence needed before system reboot
+- **Where**: Directly on compromised system
+- **Situation**: Fileless malware, in-memory only threat, before remediation
+- **Why Manual**: Time-sensitive, analyst decides WHEN to capture based on threat activity
+
+#### **UC-007: Registry Persistence Hunter**
+- **What**: Scans all autorun registry keys for suspicious entries
+- **When**: Suspected persistence mechanism
+- **Where**: On infected endpoint
+- **Situation**: Malware keeps returning after cleanup, unknown startup program
+- **Why Manual**: SIEM can't read registry; analyst needs to examine unknown keys manually
+
+#### **UC-008: Network Traffic Extractor**
+- **What**: Captures and filters PCAP for specific IP/port/protocol
+- **When**: During active C2 communication
+- **Where**: On network tap or endpoint with tcpdump
+- **Situation**: Suspected data exfiltration, C2 beacon analysis
+- **Why Manual**: Analyst needs targeted capture, not full network stream
+
+#### **UC-009: Browser Forensics Collector**
+- **What**: Extracts history, downloads, cookies, cache from all browsers
+- **When**: Web-based attack investigation
+- **Where**: On user's workstation
+- **Situation**: Drive-by download, phishing link clicked, credential harvesting
+- **Why Manual**: Browser artifacts need structured extraction for timeline analysis
+
+#### **UC-010: Email Header Deep Analyzer**
+- **What**: Parses .eml file headers, traces routing, validates SPF/DKIM
+- **When**: Phishing/spoofing investigation
+- **Where**: On analyst workstation with .eml file
+- **Situation**: Suspicious email reported, CEO fraud attempt
+- **Why Manual**: Email gateway shows "delivered" but analyst needs: Full hop chain? Header manipulation? Forged fields?
+
+---
+
+### **CATEGORY 3: Data Enrichment & Correlation (Deep Dive)**
+
+#### **UC-011: IP Reputation Batch Checker**
+- **What**: Takes list of 100+ IPs and checks against threat intel feeds
+- **When**: After extracting IPs from firewall logs
+- **Where**: On analyst workstation
+- **Situation**: Large-scale scanning detected, botnet investigation
+- **Why Manual**: SIEM enrichment limited; analyst has custom threat intel sources
+
+#### **UC-012: Domain Age & Registration Checker**
+- **What**: Queries WHOIS for domain creation date, registrar, DNS records
+- **When**: Investigating suspicious domain in phishing email
+- **Where**: On analyst workstation
+- **Situation**: New domain detected, typosquatting, DGA domain analysis
+- **Why Manual**: Real-time WHOIS lookup with context analyst understands
+
+#### **UC-013: Certificate Transparency Log Scanner**
+- **What**: Searches CT logs for certificates issued for company domains
+- **When**: Weekly/monthly domain monitoring
+- **Where**: On scheduled task server
+- **Situation**: Detecting phishing sites using similar domains
+- **Why Manual**: Proactive threat hunting, not reactive alerting
+
+#### **UC-014: User Privilege Snapshot Comparer**
+- **What**: Exports current AD group memberships and compares to baseline
+- **When**: After privilege escalation alert
+- **Where**: On Domain Controller
+- **Situation**: Unauthorized admin access, insider threat investigation
+- **Why Manual**: SIEM shows "group added" but analyst needs: What changed? When? By whom?
+
+#### **UC-015: Service Account Activity Analyzer**
+- **What**: Filters all actions by service accounts to find anomalies
+- **When**: Service account compromise suspected
+- **Where**: On log aggregation server
+- **Situation**: Kerberoasting detected, Golden Ticket investigation
+- **Why Manual**: Service accounts shouldn't do X; analyst defines "normal" based on knowledge
+
+---
+
+### **CATEGORY 4: Threat Hunting & Proactive Detection (Weekly Tasks)**
+
+#### **UC-016: Scheduled Task Auditor**
+- **What**: Lists all scheduled tasks across endpoints with creation date
+- **When**: Monthly threat hunt or after malware incident
+- **Where**: Remotely on all Windows servers/workstations
+- **Situation**: Persistence mechanism detection
+- **Why Manual**: SIEM doesn't baseline scheduled tasks; analyst knows which are legitimate
+
+#### **UC-017: PowerShell Command History Extractor**
+- **What**: Pulls all PowerShell command history from endpoints
+- **When**: Suspicious script execution alert
+- **Where**: On multiple endpoints
+- **Situation**: Empire/Cobalt Strike investigation, AMSI bypass detection
+- **Why Manual**: Analyst needs to review actual commands, not just "PowerShell ran"
+
+#### **UC-018: Rare Process Detector**
+- **What**: Finds processes running on <5% of endpoints
+- **When**: Monthly threat hunt
+- **Where**: Central endpoint management console
+- **Situation**: Identifying outlier processes that could be malware
+- **Why Manual**: "Rare" is subjective; analyst validates if rare = malicious
+
+#### **UC-019: DLL Hijack Opportunity Finder**
+- **What**: Checks common DLL hijack locations for write permissions
+- **When**: After privilege escalation
+- **Where**: On specific endpoints
+- **Situation**: Persistence technique validation
+- **Why Manual**: Technical check requiring understanding of DLL search order
+
+#### **UC-020: Shadow Copy Analyzer**
+- **What**: Lists all shadow copies and checks for deletion events
+- **When**: Ransomware suspected
+- **Where**: On file servers
+- **Situation**: Early ransomware indicator - shadows deleted before encryption
+- **Why Manual**: Time-sensitive indicator requiring immediate analyst judgment
+
+---
+
+### **CATEGORY 5: Incident Response & Containment (Active IR)**
+
+#### **UC-021: Mass Password Reset Validator**
+- **What**: Confirms password reset completion for list of users
+- **When**: During active compromise response
+- **Where**: On Domain Controller
+- **Situation**: Credential dump detected, forced password rotation
+- **Why Manual**: IR team needs confirmation, not just "command sent"
+
+#### **UC-022: Quarantine Status Checker**
+- **What**: Verifies endpoints are truly isolated from network
+- **When**: During containment phase
+- **Where**: On isolated endpoints
+- **Situation**: Malware spread prevention
+- **Why Manual**: Verify technical isolation beyond just "policy applied"
+
+#### **UC-023: Backup Integrity Validator**
+- **What**: Checks backup file hashes against originals
+- **When**: Before restoring after ransomware
+- **Where**: On backup server
+- **Situation**: Ensuring backups aren't infected
+- **Why Manual**: Critical decision point requiring analyst verification
+
+#### **UC-024: Clean Room Evidence Packager**
+- **What**: Creates password-protected, hashed evidence ZIP
+- **When**: Before sending evidence to legal/law enforcement
+- **Where**: On forensic workstation
+- **Situation**: Chain of custody requirement
+- **Why Manual**: Legal requirement for human-verified evidence handling
+
+#### **UC-025: Remediation Verification Scanner**
+- **What**: Checks if malware artifacts still exist post-cleanup
+- **When**: After running removal tool
+- **Where**: On previously infected endpoint
+- **Situation**: Confirming complete remediation
+- **Why Manual**: Analyst validates cleanup based on IOCs from investigation
+
+---
+
+### **CATEGORY 6: Log Analysis & Filtering (Heavy Lifting)**
+
+#### **UC-026: Failed Login Aggregator**
+- **What**: Exports all failed logins, groups by user/source IP
+- **When**: Password spray investigation
+- **Where**: On Domain Controller logs
+- **Situation**: Brute force detection, account lockout analysis
+- **Why Manual**: SIEM threshold-based; analyst needs raw data for pattern analysis
+
+#### **UC-027: After-Hours Access Reporter**
+- **What**: Lists all access outside 6AM-8PM with context
+- **When**: Weekly report or after insider threat alert
+- **Where**: On log aggregation server
+- **Situation**: Policy violation detection, data theft investigation
+- **Why Manual**: "After hours" depends on user role; analyst applies business logic
+
+#### **UC-028: New User Creation Auditor**
+- **What**: Lists all AD accounts created in last 30 days with creator info
+- **When**: Monthly audit or unauthorized access investigation
+- **Where**: On Domain Controller
+- **Situation**: Rogue admin detection, backdoor account hunting
+- **Why Manual**: Analyst validates legitimacy against HR records
+
+#### **UC-029: Group Policy Change Tracker**
+- **What**: Compares current GPOs against baseline export
+- **When**: After suspicious admin activity
+- **Where**: On Domain Controller
+- **Situation**: Persistence via GPO, privilege escalation detection
+- **Why Manual**: SIEM shows "GPO changed" but analyst needs: What specifically? Legitimate change?
+
+#### **UC-030: Large File Transfer Detector**
+- **What**: Finds file transfers >100MB from logs
+- **When**: Data exfiltration suspected
+- **Where**: On proxy/firewall logs
+- **Situation**: Insider threat, compromised account with data access
+- **Why Manual**: Analyst determines if transfer is legitimate based on user role
+
+---
+
+### **CATEGORY 7: Endpoint Hardening Validation (Security Posture)**
+
+#### **UC-031: Antivirus Status Sweeper**
+- **What**: Checks AV status across all endpoints (running/updated/real-time protection)
+- **When**: Daily health check
+- **Where**: Remotely on all endpoints
+- **Situation**: Identifying security gap before exploitation
+- **Why Manual**: Centralized AV console may not show real-time status; direct check needed
+
+#### **UC-032: Patch Level Validator**
+- **What**: Checks specific CVE patch installation (not just "patches applied")
+- **When**: After critical vulnerability disclosure
+- **Where**: On all Windows endpoints
+- **Situation**: Verifying specific KB installed for emergency patch
+- **Why Manual**: WSUS says "deployed" but analyst verifies actual installation
+
+#### **UC-033: SMBv1 Protocol Detector**
+- **What**: Identifies systems still using SMBv1
+- **When**: Monthly security audit
+- **Where**: On all Windows systems
+- **Situation**: EternalBlue/WannaCry vulnerability check
+- **Why Manual**: Legacy protocol check requiring technical validation
+
+#### **UC-034: Local Admin Account Finder**
+- **What**: Lists all local admin accounts on endpoints
+- **When**: During security hardening review
+- **Where**: On all workstations
+- **Situation**: LAPS validation, unauthorized admin detection
+- **Why Manual**: Policy says "no local admins" but analyst verifies reality
+
+#### **UC-035: Firewall Rule Auditor**
+- **What**: Exports Windows Firewall rules and flags overly permissive ones
+- **When**: After malware uses uncommon ports
+- **Where**: On endpoints
+- **Situation**: Identifying C2 communication paths
+- **Why Manual**: Analyst defines "permissive" based on threat context
+
+---
+
+### **CATEGORY 8: Network & Infrastructure (Security Operations)**
+
+#### **UC-036: DNS Query Anomaly Finder**
+- **What**: Finds domains queried by only 1-2 hosts
+- **When**: DGA detection, C2 beacon hunting
+- **Where**: On DNS server logs
+- **Situation**: Malware C2 communication
+- **Why Manual**: Statistical outlier requiring analyst judgment on legitimacy
+
+#### **UC-037: Certificate Expiration Monitor**
+- **What**: Checks SSL cert expiration for internal services
+- **When**: Weekly check
+- **Where**: On certificate store
+- **Situation**: Preventing service outage, MITM detection
+- **Why Manual**: Business-critical service prioritization by analyst
+
+#### **UC-038: VPN Connection Geo-Analyzer**
+- **What**: Maps VPN logins to geographic locations
+- **When**: After impossible travel alert
+- **Where**: On VPN logs
+- **Situation**: Stolen credential use, account sharing
+- **Why Manual**: Analyst considers user travel patterns, time zones
+
+#### **UC-039: Rogue DHCP Server Detector**
+- **What**: Scans network for unauthorized DHCP offers
+- **When**: Network connectivity issues or suspected MITM
+- **Where**: From network monitoring station
+- **Situation**: DHCP spoofing, rogue device on network
+- **Why Manual**: Requires active network scan with blast radius understanding
+
+#### **UC-040: Wireless Access Point Auditor**
+- **What**: Lists all WiFi APs and compares to authorized list
+- **When**: Monthly wireless security check
+- **Where**: Using wireless scanning tools
+- **Situation**: Rogue AP detection, evil twin identification
+- **Why Manual**: Physical security check requiring manual validation
+
+---
+
+### **CATEGORY 9: Cloud & SaaS Security (Hybrid Environment)**
+
+#### **UC-041: O365 Sign-in Location Validator**
+- **What**: Extracts Azure AD sign-ins from unusual countries
+- **When**: After MFA bypass alert
+- **Where**: Via Azure AD PowerShell
+- **Situation**: Compromised cloud account
+- **Why Manual**: Cloud logs separate from on-prem SIEM
+
+#### **UC-042: AWS IAM Permission Analyzer**
+- **What**: Lists all IAM users with admin permissions
+- **When**: Weekly cloud security audit
+- **Where**: Via AWS CLI
+- **Situation**: Over-privileged accounts, cloud privilege escalation
+- **Why Manual**: Cloud-specific check not in traditional SIEM
+
+#### **UC-043: S3 Bucket Public Access Checker**
+- **What**: Scans all S3 buckets for public read/write permissions
+- **When**: After data leak report
+- **Where**: Via AWS CLI
+- **Situation**: Accidental data exposure
+- **Why Manual**: Cloud misconfiguration requiring immediate validation
+
+#### **UC-044: Azure Resource Creation Auditor**
+- **What**: Lists all Azure resources created in last 7 days
+- **When**: After unauthorized charge noticed
+- **Where**: Via Azure PowerShell
+- **Situation**: Crypto-mining VM creation, resource abuse
+- **Why Manual**: Cloud billing anomaly requiring technical validation
+
+#### **UC-045: SaaS OAuth Token Reviewer**
+- **What**: Lists all third-party apps with OAuth access
+- **When**: After phishing with OAuth grant
+- **Where**: Via O365/Google Workspace admin
+- **Situation**: Malicious app with email access
+- **Why Manual**: Understanding app legitimacy requires analyst judgment
+
+---
+
+### **CATEGORY 10: Malware Analysis & Reverse Engineering (Tier 2/3)**
+
+#### **UC-046: Suspicious String Extractor**
+- **What**: Pulls readable strings from binary file
+- **When**: Initial malware triage
+- **Where**: On isolated analysis workstation
+- **Situation**: Unknown executable found
+- **Why Manual**: Quick malware characteristic identification before deep analysis
+
+#### **UC-047: PE File Metadata Parser**
+- **What**: Extracts compile time, imports, exports from .exe/.dll
+- **When**: During malware family identification
+- **Where**: On malware analysis VM
+- **Situation**: Attribution, malware aging determination
+- **Why Manual**: Technical malware analysis requiring expertise
+
+#### **UC-048: JavaScript Deobfuscator**
+- **What**: Beautifies and decodes obfuscated JS
+- **When**: Analyzing malicious website/email
+- **Where**: On analyst workstation
+- **Situation**: Drive-by download investigation, phishing kit analysis
+- **Why Manual**: Obfuscation techniques vary; manual review needed
+
+#### **UC-049: Macro Extractor & Analyzer**
+- **What**: Extracts VBA macros from Office docs
+- **When**: Malicious document investigation
+- **Where**: On isolated analysis system
+- **Situation**: Emotet/Qbot document analysis
+- **Why Manual**: Understanding macro behavior requires code review
+
+#### **UC-050: Shellcode Identifier**
+- **What**: Searches memory dumps for shellcode patterns
+- **When**: Exploit analysis
+- **Where**: On forensic workstation
+- **Situation**: Exploit kit investigation, buffer overflow analysis
+- **Why Manual**: Requires understanding of assembly/shellcode techniques
+
+---
+
+### **CATEGORY 11: Reporting & Documentation (Leadership)**
+
+#### **UC-051: Incident Timeline Generator**
+- **What**: Combines multiple log sources into chronological incident timeline
+- **When**: During incident report creation
+- **Where**: On analyst workstation with exported logs
+- **Situation**: Post-incident reporting, root cause analysis
+- **Why Manual**: Requires analyst narrative connecting technical events
+
+#### **UC-052: IOC Report Compiler**
+- **What**: Aggregates all IOCs (IPs, domains, hashes, registry keys) from investigation
+- **When**: End of investigation
+- **Where**: On analyst workstation
+- **Situation**: Sharing threat intel, blocking at perimeter
+- **Why Manual**: Curating actionable IOCs requires context and validation
+
+#### **UC-053: Executive Summary Generator**
+- **What**: Converts technical findings to business impact report
+- **When**: For leadership briefing
+- **Where**: On analyst workstation
+- **Situation**: Board reporting, insurance claim, regulatory notification
+- **Why Manual**: Translating technical to business language requires human judgment
+
+#### **UC-054: Compliance Evidence Collector**
+- **What**: Gathers specific logs/screenshots proving control implementation
+- **When**: During audit
+- **Where**: Across multiple systems
+- **Situation**: SOC2, ISO27001, PCI-DSS audit
+- **Why Manual**: Audit requirements need human interpretation and evidence selection
+
+#### **UC-055: Lessons Learned Documenter**
+- **What**: Creates structured post-incident review document
+- **When**: After major incident closure
+- **Where**: On documentation system
+- **Situation**: Process improvement, training material creation
+- **Why Manual**: Requires analyst expertise to identify improvement opportunities
+
+---
+
+## **Execution Matrix**
+
+| Category | Urgency | Typical User | Run Location | Output Format |
+|----------|---------|--------------|--------------|---------------|
+| Alert Triage | Immediate (0-15 min) | L1/L2 Analyst | Remote/Endpoint | Console + CSV |
+| Evidence Collection | High (0-2 hours) | L2 Analyst/IR | Endpoint Direct | Timestamped Files |
+| Data Enrichment | Medium (2-8 hours) | L2/L3 Analyst | Analyst Workstation | Enriched CSV/JSON |
+| Threat Hunting | Low (Weekly) | L3/Threat Hunter | Central Server | Report + IOCs |
+| Incident Response | Critical (Real-time) | IR Lead | Multiple Systems | Evidence Package |
+| Log Analysis | Medium (Daily) | L2 Analyst | Log Server | Filtered Logs |
+| Hardening Validation | Low (Monthly) | Security Engineer | Remote Scan | Compliance Report |
+| Network Operations | Variable | Network Analyst | Network Tools | Network Map |
+| Cloud Security | Medium (Weekly) | Cloud Security | Cloud Console | Config Report |
+| Malware Analysis | High (0-4 hours) | Malware Analyst | Isolated Lab | Analysis Report |
+| Reporting | Low (Post-Incident) | Lead/Manager | Workstation | Formal Document |
+
+---
+
+**Key Principle**: These scripts handle the "last mile" analysis that requires human expertise, business context, and decision-making that SIEM/SOAR cannot automate.
